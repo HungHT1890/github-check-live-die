@@ -123,7 +123,7 @@
   <div id="messageBox"></div>
 
   <script>
-    // Hàm delay
+    // Hàm delay (sleep) theo miligiây
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -166,35 +166,42 @@
     }
 
     document.getElementById("checkBtn").addEventListener("click", async function () {
+      // Xóa nội dung cũ
       document.getElementById("liveResult").value = "";
       document.getElementById("dieResult").value = "";
+      
       const inputText = document.getElementById("inputData").value;
       const lines = inputText.split("\n").filter((line) => line.trim() !== "");
       let liveResults = [];
       let dieResults = [];
 
+      // Kiểm tra từng dòng và cập nhật kết quả ngay lập tức
       for (let data of lines) {
         const cleanData = cleanInput(data);
         const url = "https://api.github.com/users/" + cleanData;
+
         try {
           const response = await fetch(url, { method: "GET" });
           if (response.status === 200) {
             liveResults.push(cleanData);
+            document.getElementById("liveResult").value = liveResults.join("\n");
           } else if (response.status === 404) {
             dieResults.push(cleanData);
+            document.getElementById("dieResult").value = dieResults.join("\n");
           } else {
             dieResults.push(`${cleanData} (status: ${response.status})`);
+            document.getElementById("dieResult").value = dieResults.join("\n");
           }
         } catch (error) {
           console.error("Lỗi fetch:", error);
           dieResults.push(`${cleanData} (error)`);
+          document.getElementById("dieResult").value = dieResults.join("\n");
         }
-        // Delay 1 giây giữa các lần request
+        // Delay 1 giây giữa các request (có thể điều chỉnh thời gian)
         await sleep(1000);
       }
 
-      document.getElementById("liveResult").value = liveResults.join("\n");
-      document.getElementById("dieResult").value = dieResults.join("\n");
+      // Lưu kết quả vào localStorage và hiển thị message box khi hoàn thành
       saveResults(document.getElementById("liveResult").value, document.getElementById("dieResult").value);
       showMessage("CHECK DONE - Buy account dm telegram: @hunght1890");
     });

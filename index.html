@@ -178,7 +178,11 @@
       // Xử lý từng dòng
       for (let data of lines) {
         const cleanData = cleanInput(data);
+<<<<<<< HEAD
         const url = "https://github.com/" + cleanData;
+=======
+        const url = "https://api.github.com/users/" + cleanData;
+>>>>>>> 43931c2 (contact for work telegram @hunght1890)
 
         try {
           const response = await fetch(url, { method: "GET" });

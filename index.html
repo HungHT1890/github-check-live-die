@@ -62,6 +62,19 @@
     h2 {
       margin-top: 0;
     }
+    /* Thanh progress */
+    #progressContainer {
+      margin-top: 20px;
+      display: none;
+    }
+    #progressBar {
+      width: 100%;
+      height: 20px;
+    }
+    #progressText {
+      text-align: center;
+      margin-top: 5px;
+    }
     /* Hộp thông báo nổi (message box) */
     #messageBox {
       position: fixed;
@@ -98,12 +111,18 @@
   <!-- Ô nhập liệu nhiều dòng -->
   <textarea
     id="inputData"
-    placeholder="One line one username"
+    placeholder="one username one line"
   ></textarea>
   <br />
 
   <!-- Nút Kiểm tra -->
   <button id="checkBtn">Kiểm Tra</button>
+  
+  <!-- Thanh progress -->
+  <div id="progressContainer">
+    <progress id="progressBar" value="0"></progress>
+    <div id="progressText">0 / 0</div>
+  </div>
 
   <!-- Khu vực hiển thị kết quả -->
   <div class="result-container">
@@ -171,13 +190,23 @@
       document.getElementById("dieResult").value = "";
       
       const inputText = document.getElementById("inputData").value;
-      const lines = inputText.split("\n").filter((line) => line.trim() !== "");
+      const lines = inputText.split("\n").filter(line => line.trim() !== "");
+      
+      // Thiết lập thanh progress
+      const progressContainer = document.getElementById("progressContainer");
+      const progressBar = document.getElementById("progressBar");
+      const progressText = document.getElementById("progressText");
+      progressContainer.style.display = "block";
+      progressBar.max = lines.length;
+      progressBar.value = 0;
+      progressText.textContent = `0 / ${lines.length}`;
+
       let liveResults = [];
       let dieResults = [];
 
-      // Kiểm tra từng dòng và cập nhật kết quả ngay lập tức
-      for (let data of lines) {
-        const cleanData = cleanInput(data);
+      // Sử dụng vòng lặp for để có index
+      for (let i = 0; i < lines.length; i++) {
+        const cleanData = cleanInput(lines[i]);
         const url = "https://api.github.com/users/" + cleanData;
 
         try {
@@ -197,11 +226,14 @@
           dieResults.push(`${cleanData} (error)`);
           document.getElementById("dieResult").value = dieResults.join("\n");
         }
+        // Cập nhật thanh progress
+        progressBar.value = i + 1;
+        progressText.textContent = `${i + 1} / ${lines.length}`;
         // Delay 1 giây giữa các request (có thể điều chỉnh thời gian)
-        await sleep(5000);
+        await sleep(1000);
       }
 
-      // Lưu kết quả vào localStorage và hiển thị message box khi hoàn thành
+      // Lưu kết quả vào localStorage
       saveResults(document.getElementById("liveResult").value, document.getElementById("dieResult").value);
       showMessage("CHECK DONE - Buy account dm telegram: @hunght1890");
     });

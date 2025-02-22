@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GITHUB USERNAME CHECKER ( LIVE - DIE ) telegram: hunght1890</title>
+  <style>
+    /* Màu nền tối, chữ sáng */
+    body {
+      background-color: #1e1e1e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    /* Style cho textarea */
+    textarea {
+      background-color: #333;
+      color: #fff;
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      font-size: 14px;
+      box-sizing: border-box;
+      resize: vertical; /* Cho phép người dùng thay đổi chiều cao */
+      border: 1px solid #555;
+      border-radius: 4px;
+    }
+    /* Style cho button */
+    button {
+      background-color: #444;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      border: 1px solid #555;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    /* Khu vực hiển thị kết quả */
+    .result-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .result-box {
+      flex: 1;
+      min-width: 300px;
+      padding: 10px;
+      border: 1px solid #555;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      background-color: #2e2e2e;
+    }
+    .result-box:last-child {
+      margin-right: 0;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    /* Hộp thông báo nổi (message box) */
+    #messageBox {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #333;
+      color: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      display: none; /* Ẩn mặc định */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 9999; /* Để hộp thông báo nằm trên cùng */
+      text-align: center;
+    }
+    /* Nút đóng trong message box */
+    #messageBox button {
+      margin-top: 15px;
+      background-color: #444;
+      color: #fff;
+      padding: 8px 16px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #messageBox button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kiểm Tra GitHub Repositories</h1>
+
+  <!-- Ô nhập liệu nhiều dòng -->
+  <textarea
+    id="inputData"
+    placeholder="Nhập dữ liệu (mỗi dòng là repo, ví dụ: user/repo)..."
+  ></textarea>
+  <br />
+
+  <!-- Nút Kiểm tra -->
+  <button id="checkBtn">Kiểm Tra</button>
+
+  <!-- Khu vực hiển thị kết quả -->
+  <div class="result-container">
+    <div class="result-box">
+      <h2>Live</h2>
+      <!-- Hiển thị tất cả kết quả Live trong 1 textarea -->
+      <textarea id="liveResult" readonly></textarea>
+    </div>
+    <div class="result-box">
+      <h2>Die</h2>
+      <!-- Hiển thị tất cả kết quả Die trong 1 textarea -->
+      <textarea id="dieResult" readonly></textarea>
+    </div>
+  </div>
+
+  <!-- Hộp thông báo giữa màn hình -->
+  <div id="messageBox"></div>
+
+  <script>
+    // Hàm load kết quả từ localStorage khi trang được tải
+    function loadResults() {
+      const liveData = localStorage.getItem("liveData");
+      const dieData = localStorage.getItem("dieData");
+      if (liveData) {
+        document.getElementById("liveResult").value = liveData;
+      }
+      if (dieData) {
+        document.getElementById("dieResult").value = dieData;
+      }
+    }
+
+    // Hàm lưu kết quả vào localStorage
+    function saveResults(liveText, dieText) {
+      localStorage.setItem("liveData", liveText);
+      localStorage.setItem("dieData", dieText);
+    }
+
+    // Hàm loại bỏ ký tự xuống dòng và tab trong dữ liệu
+    function cleanInput(input) {
+      return input.replace(/[\n\t]/g, "").trim();
+    }
+
+    // Hàm hiển thị message box có nút Đóng
+    function showMessage(msg) {
+      const box = document.getElementById("messageBox");
+      // Tạo nội dung cho message box, gồm dòng thông báo và nút Đóng
+      box.innerHTML = `
+        <p>${msg}</p>
+        <button id="closeBtn">Close</button>
+      `;
+      box.style.display = "block";
+
+      // Bắt sự kiện click vào nút Đóng để ẩn message box
+      const closeBtn = document.getElementById("closeBtn");
+      closeBtn.addEventListener("click", function () {
+        box.style.display = "none";
+      });
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", async function () {
+      // Xóa nội dung cũ
+      document.getElementById("liveResult").value = "";
+      document.getElementById("dieResult").value = "";
+
+      // Lấy dữ liệu từ ô nhập và tách thành từng dòng (bỏ qua dòng trống)
+      const inputText = document.getElementById("inputData").value;
+      const lines = inputText.split("\n").filter((line) => line.trim() !== "");
+
+      // Mảng lưu kết quả
+      let liveResults = [];
+      let dieResults = [];
+
+      // Xử lý từng dòng
+      for (let data of lines) {
+        const cleanData = cleanInput(data);
+        const url = "https://github.com/" + cleanData;
+
+        try {
+          const response = await fetch(url, { method: "GET" });
+          if (response.status === 200) {
+            liveResults.push(cleanData);
+          } else if (response.status === 404) {
+            dieResults.push(cleanData);
+          } else {
+            dieResults.push(`${cleanData} (status: ${response.status})`);
+          }
+        } catch (error) {
+          console.error("Lỗi fetch:", error);
+          dieResults.push(`${cleanData} (error)`);
+        }
+      }
+
+      // Sau khi chạy xong tất cả, hiển thị kết quả
+      document.getElementById("liveResult").value = liveResults.join("\n");
+      document.getElementById("dieResult").value = dieResults.join("\n");
+
+      // Lưu vào localStorage
+      saveResults(document.getElementById("liveResult").value, document.getElementById("dieResult").value);
+
+      // Hiển thị message box giữa màn hình
+      showMessage("CHECK DONE - Buy account dm telegram: @hunght1890");
+    });
+
+    // Khi trang load, hiển thị kết quả lần kiểm tra gần nhất (nếu có)
+    window.onload = loadResults;
+  </script>
+</body>
+</html>

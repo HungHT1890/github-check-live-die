@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="favicon.png">
   <title>GITHUB USERNAME CHECKER ( LIVE - DIE ) telegram: hunght1890</title>
   <style>
     /* Màu nền tối, chữ sáng */
@@ -92,7 +93,7 @@
   </style>
 </head>
 <body>
-  <h1>Kiểm Tra GitHub Repositories</h1>
+  <h1>GITHUB USERNAME LIVE - DIE CHECKER => Contact for buy account -> telegram: @hunght1890</h1>
 
   <!-- Ô nhập liệu nhiều dòng -->
   <textarea
@@ -178,11 +179,7 @@
       // Xử lý từng dòng
       for (let data of lines) {
         const cleanData = cleanInput(data);
-<<<<<<< HEAD
-        const url = "https://github.com/" + cleanData;
-=======
         const url = "https://api.github.com/users/" + cleanData;
->>>>>>> 43931c2 (contact for work telegram @hunght1890)
 
         try {
           const response = await fetch(url, { method: "GET" });

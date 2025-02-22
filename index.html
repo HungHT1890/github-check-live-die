@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/x-icon" href="favicon.png">
-  <title>GITHUB USERNAME CHECKER ( LIVE - DIE ) telegram: hunght1890</title>
+  <title>GITHUB USERNAME CHECKER ( LIVE - DIE - ERROR ) telegram: hunght1890</title>
   <style>
     /* Màu nền tối, chữ sáng */
     body {
@@ -106,12 +106,12 @@
   </style>
 </head>
 <body>
-  <h1>GITHUB USERNAME LIVE - DIE CHECKER => Contact for buy account -> telegram: @hunght1890</h1>
+  <h1>GITHUB USERNAME LIVE - DIE - ERROR CHECKER => Contact for buy account -> telegram: @hunght1890</h1>
 
   <!-- Ô nhập liệu nhiều dòng -->
   <textarea
     id="inputData"
-    placeholder="one username one line"
+    placeholder="Nhập dữ liệu (mỗi dòng là username)..."
   ></textarea>
   <br />
 
@@ -136,6 +136,11 @@
       <!-- Hiển thị tất cả kết quả Die trong 1 textarea -->
       <textarea id="dieResult" readonly></textarea>
     </div>
+    <div class="result-box">
+      <h2>Error</h2>
+      <!-- Hiển thị tất cả kết quả Error trong 1 textarea -->
+      <textarea id="errorResult" readonly></textarea>
+    </div>
   </div>
 
   <!-- Hộp thông báo giữa màn hình -->
@@ -151,18 +156,23 @@
     function loadResults() {
       const liveData = localStorage.getItem("liveData");
       const dieData = localStorage.getItem("dieData");
+      const errorData = localStorage.getItem("errorData");
       if (liveData) {
         document.getElementById("liveResult").value = liveData;
       }
       if (dieData) {
         document.getElementById("dieResult").value = dieData;
       }
+      if (errorData) {
+        document.getElementById("errorResult").value = errorData;
+      }
     }
 
     // Hàm lưu kết quả vào localStorage
-    function saveResults(liveText, dieText) {
+    function saveResults(liveText, dieText, errorText) {
       localStorage.setItem("liveData", liveText);
       localStorage.setItem("dieData", dieText);
+      localStorage.setItem("errorData", errorText);
     }
 
     // Hàm loại bỏ ký tự xuống dòng và tab trong dữ liệu
@@ -188,6 +198,7 @@
       // Xóa nội dung cũ
       document.getElementById("liveResult").value = "";
       document.getElementById("dieResult").value = "";
+      document.getElementById("errorResult").value = "";
       
       const inputText = document.getElementById("inputData").value;
       const lines = inputText.split("\n").filter(line => line.trim() !== "");
@@ -203,6 +214,7 @@
 
       let liveResults = [];
       let dieResults = [];
+      let errorResults = [];
 
       // Sử dụng vòng lặp for để có index
       for (let i = 0; i < lines.length; i++) {
@@ -218,13 +230,13 @@
             dieResults.push(cleanData);
             document.getElementById("dieResult").value = dieResults.join("\n");
           } else {
-            dieResults.push(`${cleanData} (status: ${response.status})`);
-            document.getElementById("dieResult").value = dieResults.join("\n");
+            errorResults.push(`${cleanData} (status: ${response.status})`);
+            document.getElementById("errorResult").value = errorResults.join("\n");
           }
         } catch (error) {
           console.error("Lỗi fetch:", error);
-          dieResults.push(`${cleanData} (error)`);
-          document.getElementById("dieResult").value = dieResults.join("\n");
+          errorResults.push(`${cleanData} (error)`);
+          document.getElementById("errorResult").value = errorResults.join("\n");
         }
         // Cập nhật thanh progress
         progressBar.value = i + 1;
@@ -234,7 +246,11 @@
       }
 
       // Lưu kết quả vào localStorage
-      saveResults(document.getElementById("liveResult").value, document.getElementById("dieResult").value);
+      saveResults(
+        document.getElementById("liveResult").value,
+        document.getElementById("dieResult").value,
+        document.getElementById("errorResult").value
+      );
       showMessage("CHECK DONE - Buy account dm telegram: @hunght1890");
     });
 

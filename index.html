@@ -127,17 +127,17 @@
   <!-- Khu vực hiển thị kết quả -->
   <div class="result-container">
     <div class="result-box">
-      <h2>Live</h2>
+      <h2>Live (<span id="liveCount">0</span>)</h2>
       <!-- Hiển thị tất cả kết quả Live trong 1 textarea -->
       <textarea id="liveResult" readonly></textarea>
     </div>
     <div class="result-box">
-      <h2>Die</h2>
+      <h2>Die (<span id="dieCount">0</span>)</h2>
       <!-- Hiển thị tất cả kết quả Die trong 1 textarea -->
       <textarea id="dieResult" readonly></textarea>
     </div>
     <div class="result-box">
-      <h2>Error</h2>
+      <h2>Error (<span id="errorCount">0</span>)</h2>
       <!-- Hiển thị tất cả kết quả Error trong 1 textarea -->
       <textarea id="errorResult" readonly></textarea>
     </div>
@@ -159,12 +159,15 @@
       const errorData = localStorage.getItem("errorData");
       if (liveData) {
         document.getElementById("liveResult").value = liveData;
+        document.getElementById("liveCount").textContent = liveData.split("\n").filter(line => line.trim() !== "").length;
       }
       if (dieData) {
         document.getElementById("dieResult").value = dieData;
+        document.getElementById("dieCount").textContent = dieData.split("\n").filter(line => line.trim() !== "").length;
       }
       if (errorData) {
         document.getElementById("errorResult").value = errorData;
+        document.getElementById("errorCount").textContent = errorData.split("\n").filter(line => line.trim() !== "").length;
       }
     }
 
@@ -200,6 +203,11 @@
       document.getElementById("dieResult").value = "";
       document.getElementById("errorResult").value = "";
       
+      // Reset count
+      document.getElementById("liveCount").textContent = "0";
+      document.getElementById("dieCount").textContent = "0";
+      document.getElementById("errorCount").textContent = "0";
+      
       const inputText = document.getElementById("inputData").value;
       const lines = inputText.split("\n").filter(line => line.trim() !== "");
       
@@ -226,17 +234,21 @@
           if (response.status === 200) {
             liveResults.push(cleanData);
             document.getElementById("liveResult").value = liveResults.join("\n");
+            document.getElementById("liveCount").textContent = liveResults.length;
           } else if (response.status === 404) {
             dieResults.push(cleanData);
             document.getElementById("dieResult").value = dieResults.join("\n");
+            document.getElementById("dieCount").textContent = dieResults.length;
           } else {
             errorResults.push(`${cleanData} (status: ${response.status})`);
             document.getElementById("errorResult").value = errorResults.join("\n");
+            document.getElementById("errorCount").textContent = errorResults.length;
           }
         } catch (error) {
           console.error("Lỗi fetch:", error);
           errorResults.push(`${cleanData} (error)`);
           document.getElementById("errorResult").value = errorResults.join("\n");
+          document.getElementById("errorCount").textContent = errorResults.length;
         }
         // Cập nhật thanh progress
         progressBar.value = i + 1;

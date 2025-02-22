@@ -22,7 +22,7 @@
       padding: 10px;
       font-size: 14px;
       box-sizing: border-box;
-      resize: vertical; /* Cho phép người dùng thay đổi chiều cao */
+      resize: vertical;
       border: 1px solid #555;
       border-radius: 4px;
     }
@@ -72,9 +72,9 @@
       color: #fff;
       padding: 20px 30px;
       border-radius: 8px;
-      display: none; /* Ẩn mặc định */
+      display: none;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      z-index: 9999; /* Để hộp thông báo nằm trên cùng */
+      z-index: 9999;
       text-align: center;
     }
     /* Nút đóng trong message box */
@@ -123,6 +123,11 @@
   <div id="messageBox"></div>
 
   <script>
+    // Hàm delay
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     // Hàm load kết quả từ localStorage khi trang được tải
     function loadResults() {
       const liveData = localStorage.getItem("liveData");
@@ -149,14 +154,11 @@
     // Hàm hiển thị message box có nút Đóng
     function showMessage(msg) {
       const box = document.getElementById("messageBox");
-      // Tạo nội dung cho message box, gồm dòng thông báo và nút Đóng
       box.innerHTML = `
         <p>${msg}</p>
         <button id="closeBtn">Close</button>
       `;
       box.style.display = "block";
-
-      // Bắt sự kiện click vào nút Đóng để ẩn message box
       const closeBtn = document.getElementById("closeBtn");
       closeBtn.addEventListener("click", function () {
         box.style.display = "none";
@@ -164,23 +166,16 @@
     }
 
     document.getElementById("checkBtn").addEventListener("click", async function () {
-      // Xóa nội dung cũ
       document.getElementById("liveResult").value = "";
       document.getElementById("dieResult").value = "";
-
-      // Lấy dữ liệu từ ô nhập và tách thành từng dòng (bỏ qua dòng trống)
       const inputText = document.getElementById("inputData").value;
       const lines = inputText.split("\n").filter((line) => line.trim() !== "");
-
-      // Mảng lưu kết quả
       let liveResults = [];
       let dieResults = [];
 
-      // Xử lý từng dòng
       for (let data of lines) {
         const cleanData = cleanInput(data);
         const url = "https://api.github.com/users/" + cleanData;
-
         try {
           const response = await fetch(url, { method: "GET" });
           if (response.status === 200) {
@@ -194,20 +189,16 @@
           console.error("Lỗi fetch:", error);
           dieResults.push(`${cleanData} (error)`);
         }
+        // Delay 1 giây giữa các lần request
+        await sleep(1000);
       }
 
-      // Sau khi chạy xong tất cả, hiển thị kết quả
       document.getElementById("liveResult").value = liveResults.join("\n");
       document.getElementById("dieResult").value = dieResults.join("\n");
-
-      // Lưu vào localStorage
       saveResults(document.getElementById("liveResult").value, document.getElementById("dieResult").value);
-
-      // Hiển thị message box giữa màn hình
       showMessage("CHECK DONE - Buy account dm telegram: @hunght1890");
     });
 
-    // Khi trang load, hiển thị kết quả lần kiểm tra gần nhất (nếu có)
     window.onload = loadResults;
   </script>
 </body>
